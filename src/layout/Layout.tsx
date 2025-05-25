@@ -15,7 +15,6 @@ import {
   MenuProps,
   Space,
   theme,
-  Typography,
 } from "antd";
 import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
@@ -81,7 +80,7 @@ const MainLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { borderRadiusLG },
   } = theme.useToken();
   var elem = document.documentElement;
 
@@ -126,7 +125,7 @@ const MainLayout: React.FC = () => {
       <Sider
         collapsible
         collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
+        onCollapse={(value: boolean) => setCollapsed(value)}
       >
         <div
           className="demo-logo-vertical"

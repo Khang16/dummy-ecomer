@@ -1,5 +1,4 @@
-// src/modules/products/hooks/useProduct.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react"; 
 import { productApi } from "../../apis/product";
 
 interface Product {
@@ -27,17 +26,18 @@ export const useProduct = ({
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState<number>(0);
 
-  const fetchProducts = async () => {
+  // Sử dụng useCallback để memoize hàm fetchProducts
+  const fetchProducts = useCallback(async () => {
     const skip = (page - 1) * limit;
-    const response = await productApi.getAll({ skip, limit }); 
+    const response = await productApi.getAll({ skip, limit });
     const data = response.data as { products: Product[]; total: number };
     setProducts(data.products);
     setTotal(data.total);
-  };
+  }, [page, limit]); // Dependency array của useCallback
 
   useEffect(() => {
     fetchProducts();
-  }, [page, limit]);
+  }, [fetchProducts]); // Giờ đây fetchProducts ổn định
 
   return {
     products,

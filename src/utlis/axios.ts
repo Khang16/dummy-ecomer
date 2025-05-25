@@ -10,7 +10,8 @@ baseAdminAxios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
     if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
+      config.headers = config.headers || {};
+      // config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
@@ -20,25 +21,25 @@ baseAdminAxios.interceptors.request.use(
 );
 
 baseAdminAxios.interceptors.response.use(
-  (response) => {        
-      const statusCode = response.status;
-      
-      if(STATUS_CODE.includes(statusCode)){
-          return response;
-      }
-      response.data = {
-          success: false,
-          data: [],
-      };
+  (response) => {
+    const statusCode = response.status;
+
+    if (STATUS_CODE.includes(statusCode)) {
       return response;
+    }
+    response.data = {
+      success: false,
+      data: [],
+    };
+    return response;
   },
   (error) => {
-      if (error.response && error.response.status === 401) {
-          localStorage.removeItem('authToken');
-          window.location.href = '/auth/login';
-      }
-      return Promise.reject(error);
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("authToken");
+      window.location.href = "/auth/login";
+    }
+    return Promise.reject(error);
   }
-)
+);
 
-export default baseAdminAxios
+export default baseAdminAxios;

@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { loading } = useAuth();
+  const { isLoading } = useAuth();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
   }, []);
 
-  if (loading || isAuthenticated === null) {
+  if (isLoading || isAuthenticated === null) {
     return <div>Loading...</div>;
   }
 

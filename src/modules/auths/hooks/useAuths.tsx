@@ -1,51 +1,78 @@
-import { useState, useEffect } from 'react';
-import { authApi } from '../../apis/auth';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { authApi } from "../../apis/auth";
+import {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+  logout,
+} from "../../reduxs/auths/authSlice";
+import { useAppDispatch, useAppSelector } from "../../reduxs/auths/store";
 
-interface User {
+interface AuthResponse {
+  accessToken: string;
   id: number;
   username: string;
   email: string;
-  token: string;
 }
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const navigate  = useNavigate();
+  const dispatch = useAppDispatch();
+  const { user, isLoading, error } = useAppSelector((state) => state.auth);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const userData = JSON.parse(localStorage.getItem('user') || '{}');
-      setUser(userData);
+    const token = localStorage.getItem("token");
+    if (token && !user) {
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      dispatch(loginSuccess({ user: userData, token }));
     }
-    setLoading(false);
-  }, []);
+  }, [dispatch, user]);
 
-  const login = async (username: string, password: string) => {
+  const handleLogin = async (username: string, password: string) => {
+    dispatch(loginStart());
     try {
       const response = await authApi.index(username, password);
-      const data = response.data;
-      
+      const data = response.data as AuthResponse;
+
       if (data.accessToken) {
-        localStorage.setItem('token', data.accessToken);
-        localStorage.setItem('user', JSON.stringify(data));
-        setUser(data);
+        const { accessToken, ...userData } = data;
+        localStorage.setItem("token", accessToken);
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...userData,
+            id: String(userData.id),
+          })
+        );
+        dispatch(
+          loginSuccess({
+            user: {
+              ...userData,
+              id: String(userData.id),
+            },
+            token: accessToken,
+          })
+        );
         return { success: true };
       }
-      return { success: false, error: 'Invalid credentials' };
-    } catch (error) {
-      return { success: false, error: 'Login failed' };
+      return { success: false, error: "Invalid credentials" };
+    } catch (err) {
+      dispatch(loginFailure("Login failed"));
+      return { success: false, error: "Login failed" };
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    navigate('/auth/login')
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/auth/login");
   };
 
-  return { user, loading, login, logout };
+  return {
+    user,
+    isLoading,
+    error,
+    login: handleLogin,
+    logout: handleLogout,
+  };
 };

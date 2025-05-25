@@ -30,7 +30,7 @@ export const useProduct = ({
   const fetchProducts = async () => {
     const skip = (page - 1) * limit;
     const response = await productApi.getAll({ skip, limit }); 
-    const data = response.data;
+    const data = response.data as { products: Product[]; total: number };
     setProducts(data.products);
     setTotal(data.total);
   };

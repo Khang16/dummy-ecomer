@@ -1,6 +1,5 @@
 import React from "react";
 import { useState } from "react";
-import avatar from "../../media/images/avatar.png";
 import { Avatar, Card, Col, Flex, InputNumber, Row, Slider, Spin,} from 'antd';
 import type { InputNumberProps, } from 'antd';
 import { UserOutlined, SafetyOutlined, BellOutlined, PayCircleOutlined } from '@ant-design/icons'

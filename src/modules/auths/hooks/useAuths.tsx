@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../../apis/auth";
 import {
@@ -27,46 +27,41 @@ export const useAuth = () => {
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
       dispatch(loginSuccess({ user: userData, token }));
     }
-  }, [dispatch, user]);
-
-  const handleLogin = async (username: string, password: string) => {
-    dispatch(loginStart());
-    try {
-      const response = await authApi.index(username, password);
-      const data = response.data as AuthResponse;
-
-      if (data.accessToken) {
-        const { accessToken, ...userData } = data;
-        localStorage.setItem("token", accessToken);
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            ...userData,
-            id: String(userData.id),
-          })
-        );
-        dispatch(
-          loginSuccess({
-            user: {
-              ...userData,
-              id: String(userData.id),
-            },
-            token: accessToken,
-          })
-        );
-        return { success: true };
+  }, [dispatch, user]); 
+  
+  const handleLogin = useCallback(
+    async (username: string, password: string) => {
+      dispatch(loginStart());
+      try {
+        const response = await authApi.index(username, password);
+        const data = response.data as AuthResponse;
+        if (data.accessToken) {
+          const { accessToken, ...userData } = data;
+          localStorage.setItem("token", accessToken);
+          localStorage.setItem("user", JSON.stringify(userData));
+          dispatch(
+            loginSuccess({
+              user: { ...userData, id: String(userData.id) },
+              token: accessToken,
+            })
+          );
+          navigate("/products", { replace: true });
+          return { success: true };
+        }
+        dispatch(loginFailure("Invalid credentials"));
+        return { success: false, error: "Invalid credentials" };
+      } catch (err) {
+        dispatch(loginFailure("Login failed"));
+        return { success: false, error: "Login failed" };
       }
-      return { success: false, error: "Invalid credentials" };
-    } catch (err) {
-      dispatch(loginFailure("Login failed"));
-      return { success: false, error: "Login failed" };
-    }
-  };
+    },
+    [dispatch, navigate]
+  );
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/auth/login");
-  };
+  const handleLogout = useCallback(() => {
+    dispatch(logout())
+    navigate("/auth/login", { replace: true });
+  }, [dispatch, navigate]);
 
   return {
     user,

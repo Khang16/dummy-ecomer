@@ -1,25 +1,28 @@
 import React from "react";
 import { useState } from "react";
 import avatar from "../../media/images/avatar.png";
-import { Avatar, Card, Col, Flex, InputNumber, Row, Slider,} from 'antd';
+import { Avatar, Card, Col, Flex, InputNumber, Row, Slider, Spin,} from 'antd';
 import type { InputNumberProps, } from 'antd';
 import { UserOutlined, SafetyOutlined, BellOutlined, PayCircleOutlined } from '@ant-design/icons'
+import { useProfile } from "./hooks/useProfile";
 
 const InforUser: React.FC = () => {
 
-
+  const { user, loading } = useProfile();
   const [inputValue, setInputValue] = useState(1);
 
   const onChange: InputNumberProps['onChange'] = (newValue) => {
     setInputValue(newValue as number);
   };
 
+  if (loading) return <Spin size="large" />;
+
   return (
     <Card style={{padding: "2rem", height: "max-content"}}>
       <div className="containerStyle">
         <Avatar size={250} className="avatarStyle">
           <img
-            src={avatar}
+            src={user?.image}
             alt="User Avatar"
             style={{
               width: '100%',
@@ -29,7 +32,7 @@ const InforUser: React.FC = () => {
           />
         </Avatar>
       </div>
-      <h2 style={{textAlign: 'center', padding: '24px'}}>Chirs Johson</h2>
+      <h2 style={{textAlign: 'center', padding: '24px'}}>{user?.firstName} {user?.lastName}</h2>
       <Row>
         <Col span={12}>
           <Slider

@@ -6,18 +6,9 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import type { GetProps } from "antd";
-import {
-  Avatar,
-  Breadcrumb,
-  Input,
-  Layout,
-  Menu,
-  MenuProps,
-  Space,
-  theme,
-} from "antd";
-import React, { useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Avatar, Input, Layout, Menu, MenuProps, Space, theme } from "antd";
+import React, { useCallback, useState } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import logo from "../media/images/download.png";
 import { useAuth } from "../modules/auths/hooks/useAuths";
 
@@ -65,10 +56,6 @@ const items: MenuItem[] = [
     getItem("Feed", "4"),
   ]),
   getItem("Admin", "sub1", <UserOutlined className="size-icon" />, [
-    getItem("User Management", "4", null, [
-      getItem(<Link to="user/create-user">Create User</Link>, "5"),
-      getItem(<Link to="user/list-user">List User</Link>, "6"),
-    ]),
     getItem("Product Management", "7", null, [
       getItem(<Link to="products">Products</Link>, "8"),
     ]),
@@ -83,6 +70,7 @@ const MainLayout: React.FC = () => {
     token: { borderRadiusLG },
   } = theme.useToken();
   var elem = document.documentElement;
+  const navigate = useNavigate();
 
   const toggleFullscreen = () => {
     if (!isFullscreen) {
@@ -106,6 +94,15 @@ const MainLayout: React.FC = () => {
     }
   };
 
+  const handleLogin = useCallback(() => {
+    const user = localStorage.getItem("user");
+    if (!user) {
+      navigate("/auth/login");
+    } else {
+      navigate("/auth/login");
+    }
+  }, [navigate]);
+
   const itemsInfoUser: MenuItemInfouser[] = [
     getItemInfouser(
       "1",
@@ -115,7 +112,8 @@ const MainLayout: React.FC = () => {
       </Space>,
       [
         getItemInfouser("2", <Link to="profile/personal-info">Profile</Link>),
-        getItemInfouser("3", <span onClick={logout}>Logout</span>),
+        getItemInfouser("3", <span onClick={() => logout()}>Logout</span>),
+        getItemInfouser("4", <span onClick={handleLogin}>Login</span>),
       ]
     ),
   ];
@@ -193,10 +191,6 @@ const MainLayout: React.FC = () => {
           </div>
         </Header>
         <Content style={{ margin: "0 16px" }}>
-          <Breadcrumb style={{ margin: "16px 0" }}>
-            <Breadcrumb.Item>User</Breadcrumb.Item>
-            <Breadcrumb.Item>Bill</Breadcrumb.Item>
-          </Breadcrumb>
           <div
             style={{
               padding: 24,
@@ -215,4 +209,4 @@ const MainLayout: React.FC = () => {
   );
 };
 
-export default MainLayout;
+export default React.memo(MainLayout);

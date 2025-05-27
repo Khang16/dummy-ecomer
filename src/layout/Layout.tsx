@@ -8,7 +8,6 @@ import {
 import type { GetProps } from "antd";
 import {
   Avatar,
-  Breadcrumb,
   Input,
   Layout,
   Menu,
@@ -17,7 +16,7 @@ import {
   theme,
 } from "antd";
 import React, { useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import logo from "../media/images/download.png";
 import { useAuth } from "../modules/auths/hooks/useAuths";
 
@@ -76,13 +75,14 @@ const items: MenuItem[] = [
 ];
 
 const MainLayout: React.FC = () => {
-  const { logout } = useAuth();
+  const { login, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const {
     token: { borderRadiusLG },
   } = theme.useToken();
   var elem = document.documentElement;
+  const navigate = useNavigate();
 
   const toggleFullscreen = () => {
     if (!isFullscreen) {
@@ -106,6 +106,10 @@ const MainLayout: React.FC = () => {
     }
   };
 
+  const handleLogin= ()=>{
+    navigate("/auth/login")
+  }
+
   const itemsInfoUser: MenuItemInfouser[] = [
     getItemInfouser(
       "1",
@@ -115,7 +119,8 @@ const MainLayout: React.FC = () => {
       </Space>,
       [
         getItemInfouser("2", <Link to="profile/personal-info">Profile</Link>),
-        getItemInfouser("3", <span onClick={logout}>Logout</span>),
+        getItemInfouser("3", <span onClick={() => logout()}>Logout</span>),
+        getItemInfouser("4", <span onClick={handleLogin}>Login</span>)
       ]
     ),
   ];
@@ -193,10 +198,6 @@ const MainLayout: React.FC = () => {
           </div>
         </Header>
         <Content style={{ margin: "0 16px" }}>
-          <Breadcrumb style={{ margin: "16px 0" }}>
-            <Breadcrumb.Item>User</Breadcrumb.Item>
-            <Breadcrumb.Item>Bill</Breadcrumb.Item>
-          </Breadcrumb>
           <div
             style={{
               padding: 24,

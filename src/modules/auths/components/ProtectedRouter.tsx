@@ -1,34 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuths';
+import React from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../hooks/useAuths";
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isLoading } = useAuth();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
 
-  useEffect(() => {
-    // Kiểm tra token trong localStorage
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    
-    if (token && userData) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, []);
-
-  if (isLoading || isAuthenticated === null) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/auth/login" />;
+  if (!user && location.pathname === "/products") {
+    return children ? <>{children}</> : <Outlet />;
+  }
+  if (!user) {
+    return <Navigate to="/products" replace />;
   }
 
-  return <>{children}</>;
+  // Allow authenticated users to access protected routes
+  return children ? <>{children}</> : <Outlet />;
 };

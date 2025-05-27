@@ -1,18 +1,15 @@
-import React from "react";
-
-import ForgotPassword from "./components/ForgotPassword";
+import { Navigate, RouteObject } from "react-router-dom";
+import { useAuth } from "./hooks/useAuths";
 import { LoginPage } from "./components/LoginPage";
 
-export const authRouter = {
-  path: "auth",
-  children: [
-    {
-      path: "login",
-      element: <LoginPage></LoginPage>,
-    },
-    {
-      path: "forgot-password",
-      element: <ForgotPassword></ForgotPassword>,
-    },
-  ],
+const AuthCheck: React.FC = () => {
+  const { user } = useAuth();
+  return user ? <Navigate to="/products" replace /> : <LoginPage />;
 };
+
+export const authRouter: RouteObject[] = [
+  {
+    path: "login",
+    element: <AuthCheck />,
+  },
+];

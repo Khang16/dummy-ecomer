@@ -6,16 +6,8 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import type { GetProps } from "antd";
-import {
-  Avatar,
-  Input,
-  Layout,
-  Menu,
-  MenuProps,
-  Space,
-  theme,
-} from "antd";
-import React, { useState } from "react";
+import { Avatar, Input, Layout, Menu, MenuProps, Space, theme } from "antd";
+import React, { useCallback, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import logo from "../media/images/download.png";
 import { useAuth } from "../modules/auths/hooks/useAuths";
@@ -64,10 +56,6 @@ const items: MenuItem[] = [
     getItem("Feed", "4"),
   ]),
   getItem("Admin", "sub1", <UserOutlined className="size-icon" />, [
-    getItem("User Management", "4", null, [
-      getItem(<Link to="user/create-user">Create User</Link>, "5"),
-      getItem(<Link to="user/list-user">List User</Link>, "6"),
-    ]),
     getItem("Product Management", "7", null, [
       getItem(<Link to="products">Products</Link>, "8"),
     ]),
@@ -75,7 +63,7 @@ const items: MenuItem[] = [
 ];
 
 const MainLayout: React.FC = () => {
-  const { login, logout } = useAuth();
+  const { logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const {
@@ -106,9 +94,14 @@ const MainLayout: React.FC = () => {
     }
   };
 
-  const handleLogin= ()=>{
-    navigate("/auth/login")
-  }
+  const handleLogin = useCallback(() => {
+    const user = localStorage.getItem("user");
+    if (!user) {
+      navigate("/auth/login");
+    } else {
+      navigate("/auth/login");
+    }
+  }, [navigate]);
 
   const itemsInfoUser: MenuItemInfouser[] = [
     getItemInfouser(
@@ -120,7 +113,7 @@ const MainLayout: React.FC = () => {
       [
         getItemInfouser("2", <Link to="profile/personal-info">Profile</Link>),
         getItemInfouser("3", <span onClick={() => logout()}>Logout</span>),
-        getItemInfouser("4", <span onClick={handleLogin}>Login</span>)
+        getItemInfouser("4", <span onClick={handleLogin}>Login</span>),
       ]
     ),
   ];
@@ -216,4 +209,4 @@ const MainLayout: React.FC = () => {
   );
 };
 
-export default MainLayout;
+export default React.memo(MainLayout);

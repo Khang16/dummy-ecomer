@@ -59,9 +59,7 @@ export const useAuth = () => {
   );
 
   const handleLogout = useCallback(() => {
-    dispatch(logout());
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    dispatch(logout())
     navigate("/auth/login", { replace: true });
   }, [dispatch, navigate]);
 
